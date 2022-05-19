@@ -1,10 +1,10 @@
 package main
 
 import (
-    "fmt"
+    //"fmt"
     "log"
     "os"
-    //"strings"
+    "github.com/miralgj/si/pkg/config"
     "github.com/urfave/cli/v2"
 )
 
@@ -14,7 +14,7 @@ func main() {
     app.Version = "v0.0.1"
     app.Usage = "Expose system commands as an API"
     app.Action = cliHandler
-    //app.Flags = config.CLIFlags
+    app.Flags = config.Flags
     err := app.Run(os.Args)
     if err != nil {
         log.Fatal(err)
@@ -22,6 +22,5 @@ func main() {
 }
 
 func cliHandler(c *cli.Context) error {
-    fmt.Println("Si!")
     return nil
 }
