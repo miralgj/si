@@ -19,5 +19,10 @@ func init() {
             Usage:  "load configuration from `FILE`",
             EnvVars: []string{"CONFIG"},
         },
+        &cli.StringSliceFlag{
+            Name:   "cmd",
+            Usage:  "command to expose `FILE`",
+            EnvVars: []string{"CMDS"},
+        },
     }
 }

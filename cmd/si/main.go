@@ -1,7 +1,7 @@
 package main
 
 import (
-    //"fmt"
+    "fmt"
     "log"
     "os"
     "github.com/miralgj/si/pkg/config"
@@ -22,5 +22,8 @@ func main() {
 }
 
 func cliHandler(c *cli.Context) error {
+    for _, command := range c.StringSlice("cmd") {
+        fmt.Println(command)
+    }
     return nil
 }
