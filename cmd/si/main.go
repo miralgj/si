@@ -4,7 +4,9 @@ import (
     "fmt"
     "log"
     "os"
+    "net/http"
     "github.com/miralgj/si/pkg/config"
+    "github.com/miralgj/si/pkg/router"
     "github.com/urfave/cli/v2"
 )
 
@@ -18,12 +20,14 @@ func main() {
     err := app.Run(os.Args)
     if err != nil {
         log.Fatal(err)
-  }
+    }
 }
 
 func cliHandler(c *cli.Context) error {
     for _, command := range c.StringSlice("cmd") {
         fmt.Println(command)
     }
+    r := router.New()
+    http.ListenAndServe(":3000", r)
     return nil
 }
