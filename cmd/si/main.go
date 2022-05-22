@@ -1,7 +1,7 @@
 package main
 
 import (
-    "fmt"
+    //"fmt"
     "log"
     "os"
     "net/http"
@@ -24,10 +24,8 @@ func main() {
 }
 
 func cliHandler(c *cli.Context) error {
-    for _, command := range c.StringSlice("cmd") {
-        fmt.Println(command)
-    }
     r := router.New()
-    http.ListenAndServe(":3000", r)
+    conf := config.New()
+    http.ListenAndServe(conf.Listen+":"+conf.Port, r)
     return nil
 }
