@@ -5,27 +5,16 @@ import (
     //"github.com/spf13/viper"
 )
 
-var Flags []cli.Flag
-
 type config struct {
+    Commands []string
     Listen string
     Port string
 }
 
-var defaults struct {
-}
+var Config config
 
-func New() *config {
-    c := config{
-        Listen: "0.0.0.0",
-        Port: "3000",
-    }
-    return &c
-}
-
-func init() {
-    defaults := New()
-    Flags = []cli.Flag{
+func GetFlags() []cli.Flag {
+    f := []cli.Flag{
         &cli.StringFlag{
             Name:   "config",
             Aliases: []string{"c"},
@@ -36,20 +25,42 @@ func init() {
             Name:   "listen-host",
             Aliases: []string{"l"},
             Usage:  "specifies the host to listen on",
-            DefaultText: defaults.Listen,
+            //DefaultText: Config.Listen,
             EnvVars: []string{"LISTEN_HOST"},
+            Value: "0.0.0.0",
+            Destination: &Config.Listen,
         },
-        &cli.IntFlag{
+        &cli.StringFlag{
             Name:   "port",
             Aliases: []string{"p"},
             Usage:  "port to listen on",
-            DefaultText: defaults.Port,
             EnvVars: []string{"PORT"},
+            Value: "3000",
+            Destination: &Config.Port,
         },
         &cli.StringSliceFlag{
-            Name:   "cmd",
+            Name:   "command",
+            Aliases: []string{"cmd"},
             Usage:  "command to expose",
-            EnvVars: []string{"CMDS"},
+            EnvVars: []string{"COMMANDS", "CMDS"},
+            Required: true,
         },
     }
+    return f
+}
+
+func GetConfig() *config {
+    return &Config
+}
+
+func initConfig() {
+    // Initialize config with defaults
+    Config = config{
+        Listen: "0.0.0.0",
+        Port: "3000",
+    }
+}
+
+func init() {
+    initConfig()
 }
