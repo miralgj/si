@@ -2,11 +2,13 @@ package config
 
 import (
     "github.com/urfave/cli/v2"
+    "github.com/spf13/viper"
 )
 
 var Flags []cli.Flag
 
 func init() {
+    viper.SetConfigType("yaml")
     Flags = []cli.Flag{
         &cli.StringFlag{
             Name:   "config",
