@@ -1,12 +1,14 @@
 package main
 
 import (
-    "fmt"
+    //"fmt"
     "log"
     "os"
     "net/http"
+
     "github.com/miralgj/si/pkg/config"
     "github.com/miralgj/si/pkg/router"
+
     "github.com/urfave/cli/v2"
 )
 
@@ -33,9 +35,6 @@ func main() {
 
 func cliAction(c *cli.Context) error {
     conf := config.GetConfig()
-    for _, command := range conf.Commands {
-        fmt.Println("Command: "+command)
-    }
     r := router.NewRouter()
     http.ListenAndServe(conf.Listen+":"+conf.Port, r)
     return nil
