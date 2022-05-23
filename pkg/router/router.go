@@ -2,7 +2,8 @@ package router
 
 import (
     "log"
-    //"fmt"
+    "fmt"
+    "errors"
     "net/http"
     "path/filepath"
     "encoding/json"
@@ -10,8 +11,25 @@ import (
     "github.com/miralgj/si/pkg/config"
 
     "github.com/go-chi/chi/v5"
+    "github.com/go-chi/render"
     "github.com/go-chi/chi/v5/middleware"
 )
+
+type Command struct {
+    Name string `json:"name"`
+    //Args []string `json:"args,omitempty"`
+}
+
+type CommandRequest struct {
+   *Command
+}
+
+func (c *CommandRequest) Bind(r *http.Request) error {
+   if c.Command == nil {
+      return errors.New("missing required fields")
+   }
+   return nil
+}
 
 var cmdParams map[string]string
 
@@ -32,14 +50,33 @@ func NewRouter() *chi.Mux {
     r.Use(middleware.RealIP)
     r.Use(middleware.Logger)
     r.Use(middleware.Recoverer)
+    r.Use(render.SetContentType(render.ContentTypeJSON))
 
     r.Route("/exec", func(r chi.Router) {
-        r.Get("/{cmd}", exec)
+        //r.Get("/{cmd}", exec)
+        r.Post("/", execArgs)
     })
 
     r.Get("/list", list)
     r.Get("/ping", ping)
     return r
+}
+
+func execArgs(w http.ResponseWriter, r *http.Request) {
+    data := &CommandRequest{}
+    if err := render.Bind(r, data); err != nil {
+        //render.Render(w, r, networkError.ErrInvalidRequest(err))
+        w.Write([]byte("bad request"))
+        return
+    }
+
+    cmd := data.Command   // Handles logic here
+    fmt.Println("name="+cmd.Name)
+
+    // generates a response with 201 status code and json-encoded 
+    // booking data
+    render.Status(r, http.StatusCreated)
+    w.Write([]byte("good"))
 }
 
 func exec(w http.ResponseWriter, r *http.Request) {
