@@ -1,7 +1,6 @@
 package router
 
 import (
-    "fmt"
     "errors"
     "net/http"
 
@@ -22,6 +21,26 @@ func (c *CommandRequest) Bind(r *http.Request) error {
       return errors.New("name not defined")
    }
    return nil
+}
+
+type CommandResponse struct {
+    Cmd string `json:"cmd"`
+    //Delta
+    //End
+    Msg string `json:"msg"`
+    Rc int `json:"rc"`
+    //Start
+    Stderr string `json:"stderr"`
+    Stdout string `json:"stdout"`
+}
+
+func (c *CommandResponse) Render(w http.ResponseWriter, r *http.Request) error {
+   return nil
+}
+
+func NewCommandResponse() *CommandResponse {
+    resp := &CommandResponse{}
+    return resp
 }
 
 type ShowConfigResponse struct {
@@ -54,15 +73,31 @@ func NewRouter() *chi.Mux {
 
 func RunCommand(w http.ResponseWriter, r *http.Request) {
     data := &CommandRequest{}
+    resp := &CommandResponse{}
+
+    // Decode the POST json data
     if err := render.Bind(r, data); err != nil {
-        w.Write([]byte("bad request"))
+        resp.Msg = err.Error()
+        resp.Rc = 1
+        render.Render(w, r, resp)
         return
     }
-
-    fmt.Println("name="+data.Name+",command="+config.Config.Commands[data.Name])
-
-    render.Status(r, http.StatusCreated)
-    w.Write([]byte("good"))
+    
+    // Make sure requested command is defined
+    if _, ok := config.Config.Commands[data.Name]; ok {
+        resp.Cmd = data.Name
+        resp.Msg = "running command - "+data.Name
+        resp.Rc = 0
+        render.Render(w, r, resp)
+        return
+    } else {
+        resp.Msg = "command not found - "+data.Name
+        resp.Rc = 127
+        render.Status(r, http.StatusBadRequest)
+        render.Render(w, r, resp)
+        return
+    }
+    return
 }
 
 func ShowConfig(w http.ResponseWriter, r *http.Request) {
