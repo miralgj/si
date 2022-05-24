@@ -7,7 +7,7 @@ import (
 
 type config struct {
     Commands map[string]string
-    CommandNames []string
+    CommandNames []string 
     Listen string
     Port string
 }

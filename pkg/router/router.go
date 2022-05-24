@@ -1,11 +1,11 @@
 package router
 
 import (
-    "log"
+    //"log"
     "fmt"
     "errors"
     "net/http"
-    "encoding/json"
+    //"encoding/json"
 
     "github.com/miralgj/si/pkg/config"
 
@@ -14,38 +14,38 @@ import (
     "github.com/go-chi/chi/v5/middleware"
 )
 
-type Command struct {
-}
-
 type CommandRequest struct {
     Name string `json:"name"`
     Args []string `json:"args,omitempty"`
 }
 
 func (c *CommandRequest) Bind(r *http.Request) error {
-   if c.Command == nil {
+   if c.Name == "" {
       return errors.New("missing required fields")
    }
    return nil
 }
 
 type ListResponse struct {
-    Commands []Commands `json:"commands"`
-}
-// Create a response for a booking
-func NewListResponse(l *model.Booking) *ListResponse {
-   resp := &ListResponse{}
-   return resp
+    String string `json:"string"`
+    Map map[string]string `json:"map"`
 }
 
-// Render booking response
+func NewListResponse() *ListResponse {
+    resp := &ListResponse{
+        String:"test",
+        Map: map[string]string{
+            "key": "value",
+        },
+    }
+    return resp
+}
+
 func (lr *ListResponse) Render(w http.ResponseWriter, r *http.Request) error {
    // Pre-processing before a response is marshalled and sent across the wire
    //rd.Elapsed = 10
    return nil
 }
-
-
 
 func NewRouter() *chi.Mux {
     r := chi.NewRouter()
@@ -69,16 +69,13 @@ func RunCommand(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    cmd := data.Command
-    fmt.Println("name="+cmd.Name+",command="+conf.Commands[cmd.Name])
+    fmt.Println("name="+data.Name+",command="+conf.Commands[data.Name])
 
     render.Status(r, http.StatusCreated)
     w.Write([]byte("good"))
 }
 
 func ListCommands(w http.ResponseWriter, r *http.Request) {
-    conf := config.GetConfig()
-    resp := make(map[string]interface{})
-    render.Render(w, r, reqmodel.NewListResponse(booking))
+    render.Render(w, r, NewListResponse())
     return
 }
