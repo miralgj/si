@@ -17,16 +17,14 @@ func main() {
     app := cli.NewApp()
     app.Name = "Si"
     app.Version = "v0.0.1"
-    app.Usage = "Expose system commands as an API"
+    app.Usage = "Expose commands as an API"
     app.Action = cliAction
     app.Before = func(c *cli.Context) error {
-        conf := config.GetConfig()
         if len(c.StringSlice("command")) > 0 {
             // StringSliceFlag doesn't support Destination
-            conf.CommandNames = c.StringSlice("command")
-            for _, cmd := range conf.CommandNames {
-                name := filepath.Base(cmd)
-                conf.Commands[name] = cmd
+            for _, path := range c.StringSlice("command") {
+                name := filepath.Base(path)
+                config.Config.Commands[name] = path
             }
         }
         return nil
@@ -39,8 +37,7 @@ func main() {
 }
 
 func cliAction(c *cli.Context) error {
-    conf := config.GetConfig()
     r := router.NewRouter()
-    http.ListenAndServe(conf.Listen+":"+conf.Port, r)
+    http.ListenAndServe(config.Config.Listen+":"+config.Config.Port, r)
     return nil
 }

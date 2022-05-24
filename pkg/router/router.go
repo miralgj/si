@@ -1,11 +1,9 @@
 package router
 
 import (
-    //"log"
     "fmt"
     "errors"
     "net/http"
-    //"encoding/json"
 
     "github.com/miralgj/si/pkg/config"
 
@@ -21,30 +19,23 @@ type CommandRequest struct {
 
 func (c *CommandRequest) Bind(r *http.Request) error {
    if c.Name == "" {
-      return errors.New("missing required fields")
+      return errors.New("name not defined")
    }
    return nil
 }
 
-type ListResponse struct {
-    String string `json:"string"`
-    Map map[string]string `json:"map"`
+type ShowConfigResponse struct {
+    *config.Options
 }
 
-func NewListResponse() *ListResponse {
-    resp := &ListResponse{
-        String:"test",
-        Map: map[string]string{
-            "key": "value",
-        },
-    }
-    return resp
-}
-
-func (lr *ListResponse) Render(w http.ResponseWriter, r *http.Request) error {
-   // Pre-processing before a response is marshalled and sent across the wire
-   //rd.Elapsed = 10
+func (c *ShowConfigResponse) Render(w http.ResponseWriter, r *http.Request) error {
+   // Don't have to do anything special to render
    return nil
+}
+
+func NewShowConfigResponse() *ShowConfigResponse {
+    resp := &ShowConfigResponse{config.Config}
+    return resp
 }
 
 func NewRouter() *chi.Mux {
@@ -56,26 +47,25 @@ func NewRouter() *chi.Mux {
     r.Use(middleware.Recoverer)
     r.Use(render.SetContentType(render.ContentTypeJSON))
 
-    r.Get("/", ListCommands)
+    r.Get("/", ShowConfig)
     r.Post("/", RunCommand)
     return r
 }
 
 func RunCommand(w http.ResponseWriter, r *http.Request) {
-    conf := config.GetConfig()
     data := &CommandRequest{}
     if err := render.Bind(r, data); err != nil {
         w.Write([]byte("bad request"))
         return
     }
 
-    fmt.Println("name="+data.Name+",command="+conf.Commands[data.Name])
+    fmt.Println("name="+data.Name+",command="+config.Config.Commands[data.Name])
 
     render.Status(r, http.StatusCreated)
     w.Write([]byte("good"))
 }
 
-func ListCommands(w http.ResponseWriter, r *http.Request) {
-    render.Render(w, r, NewListResponse())
+func ShowConfig(w http.ResponseWriter, r *http.Request) {
+    render.Render(w, r, NewShowConfigResponse())
     return
 }

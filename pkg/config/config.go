@@ -5,14 +5,14 @@ import (
     //"github.com/spf13/viper"
 )
 
-type config struct {
-    Commands map[string]string
-    CommandNames []string 
-    Listen string
-    Port string
+type Options struct {
+    Commands map[string]string `json:"commands"`
+    Config string `json:"config"`
+    Listen string `json:"listen-host"`
+    Port string `json:"port"`
 }
 
-var Config config
+var Config *Options
 
 func GetFlags() []cli.Flag {
     f := []cli.Flag{
@@ -21,6 +21,7 @@ func GetFlags() []cli.Flag {
             Aliases: []string{"c"},
             Usage:  "si configuration file",
             EnvVars: []string{"CONFIG"},
+            Destination: &Config.Config,
         },
         &cli.StringFlag{
             Name:   "listen-host",
@@ -49,13 +50,9 @@ func GetFlags() []cli.Flag {
     return f
 }
 
-func GetConfig() *config {
-    return &Config
-}
-
 func initConfig() {
-    // Initialize config with defaults
-    Config = config{
+    // Initialoize config with defaults
+    Config = &Options{
         Commands: make(map[string]string),
         Listen: "0.0.0.0",
         Port: "3000",
