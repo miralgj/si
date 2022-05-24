@@ -4,6 +4,7 @@ import (
     //"fmt"
     "log"
     "os"
+    "path/filepath"
     "net/http"
 
     "github.com/miralgj/si/pkg/config"
@@ -22,7 +23,11 @@ func main() {
         conf := config.GetConfig()
         if len(c.StringSlice("command")) > 0 {
             // StringSliceFlag doesn't support Destination
-            conf.Commands = c.StringSlice("command")
+            conf.CommandNames = c.StringSlice("command")
+            for _, cmd := range conf.CommandNames {
+                name := filepath.Base(cmd)
+                conf.Commands[name] = cmd
+            }
         }
         return nil
     }

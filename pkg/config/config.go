@@ -6,7 +6,8 @@ import (
 )
 
 type config struct {
-    Commands []string
+    Commands map[string]string
+    CommandNames []string
     Listen string
     Port string
 }
@@ -25,7 +26,6 @@ func GetFlags() []cli.Flag {
             Name:   "listen-host",
             Aliases: []string{"l"},
             Usage:  "specifies the host to listen on",
-            //DefaultText: Config.Listen,
             EnvVars: []string{"LISTEN_HOST"},
             Value: "0.0.0.0",
             Destination: &Config.Listen,
@@ -56,6 +56,7 @@ func GetConfig() *config {
 func initConfig() {
     // Initialize config with defaults
     Config = config{
+        Commands: make(map[string]string),
         Listen: "0.0.0.0",
         Port: "3000",
     }
