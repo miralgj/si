@@ -1,9 +1,9 @@
 package main
 
 import (
-    //"fmt"
     "log"
     "os"
+    "errors"
     "path/filepath"
     "net/http"
 
@@ -16,13 +16,17 @@ import (
 func main() {
     app := cli.NewApp()
     app.Name = "Si"
-    app.Version = "v0.0.1"
+    app.Version = "v0.1.0"
     app.Usage = "Expose commands as an API"
     app.Action = cliAction
     app.Before = func(c *cli.Context) error {
         if len(c.StringSlice("command")) > 0 {
             // StringSliceFlag doesn't support Destination
             for _, path := range c.StringSlice("command") {
+                // Verify file exists
+                if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+                    log.Fatal(err.Error())
+                }
                 name := filepath.Base(path)
                 config.Config.Commands[name] = path
             }

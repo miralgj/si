@@ -1,7 +1,10 @@
 package router
 
 import (
+    "os"
+    "bytes"
     "errors"
+    "os/exec"
     "net/http"
 
     "github.com/miralgj/si/pkg/config"
@@ -79,24 +82,53 @@ func RunCommand(w http.ResponseWriter, r *http.Request) {
     if err := render.Bind(r, data); err != nil {
         resp.Msg = err.Error()
         resp.Rc = 1
+        render.Status(r, http.StatusBadRequest)
         render.Render(w, r, resp)
         return
     }
     
     // Make sure requested command is defined
-    if _, ok := config.Config.Commands[data.Name]; ok {
-        resp.Cmd = data.Name
-        resp.Msg = "running command - "+data.Name
-        resp.Rc = 0
-        render.Render(w, r, resp)
-        return
-    } else {
+    if _, ok := config.Config.Commands[data.Name]; !ok {
         resp.Msg = "command not found - "+data.Name
         resp.Rc = 127
         render.Status(r, http.StatusBadRequest)
         render.Render(w, r, resp)
         return
     }
+
+    resp.Cmd = data.Name
+    resp.Rc = 0
+
+    cmd := exec.Command(config.Config.Commands[data.Name], data.Args...)
+    var stdout, stderr bytes.Buffer
+    cmd.Stdout = &stdout
+    cmd.Stderr = &stderr
+
+    // Run requested command
+    err := cmd.Run()
+
+    resp.Stdout = string(stdout.Bytes())
+    resp.Stderr = string(stderr.Bytes())
+
+    var (
+        ee *exec.ExitError
+        pe *os.PathError
+    )
+    
+    if errors.As(err, &ee) {
+        // Non-zero exit code
+        resp.Msg = err.Error()
+        resp.Rc = ee.ExitCode()
+    } else if errors.As(err, &pe) {
+        resp.Msg = err.Error()
+        resp.Rc = 1
+    } else if err != nil {
+        resp.Msg = err.Error()
+        resp.Rc = 1
+    }
+
+    render.Status(r, http.StatusOK)
+    render.Render(w, r, resp)
     return
 }
 
