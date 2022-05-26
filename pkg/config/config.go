@@ -6,21 +6,21 @@ import (
 
 type Options struct {
     Commands map[string]string `json:"commands"`
-    Config string `json:"config"`
     Listen string `json:"listen-host"`
     Port string `json:"port"`
+    Timeout int `json:"timeout"`
 }
 
 var Config *Options
 
 func GetFlags() []cli.Flag {
     f := []cli.Flag{
-        &cli.StringFlag{
-            Name:   "config",
-            Aliases: []string{"c"},
-            Usage:  "si configuration file",
-            EnvVars: []string{"CONFIG"},
-            Destination: &Config.Config,
+        &cli.StringSliceFlag{
+            Name:   "command",
+            Aliases: []string{"cmd"},
+            Usage:  "command to expose",
+            EnvVars: []string{"COMMANDS"},
+            Required: true,
         },
         &cli.StringFlag{
             Name:   "listen-host",
@@ -38,12 +38,13 @@ func GetFlags() []cli.Flag {
             Value: "3000",
             Destination: &Config.Port,
         },
-        &cli.StringSliceFlag{
-            Name:   "command",
-            Aliases: []string{"cmd"},
-            Usage:  "command to expose",
-            EnvVars: []string{"COMMANDS", "CMDS"},
-            Required: true,
+        &cli.IntFlag{
+            Name:   "timeout",
+            Aliases: []string{"t"},
+            Usage:  "timeout for commands",
+            EnvVars: []string{"TIMEOUT"},
+            Value: 90,
+            Destination: &Config.Timeout,
         },
     }
     return f

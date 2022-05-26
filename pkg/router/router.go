@@ -2,10 +2,13 @@ package router
 
 import (
     "os"
+    "fmt"
+    "time"
     "bytes"
     "errors"
     "os/exec"
     "net/http"
+    "math/rand"
 
     "github.com/miralgj/si/pkg/config"
 
@@ -70,11 +73,33 @@ func NewRouter() *chi.Mux {
     r.Use(render.SetContentType(render.ContentTypeJSON))
 
     r.Get("/", ShowConfigHandler)
-    r.Post("/", RunCommandWithArgsHandler)
+    //r.Post("/", RunCommandWithArgsHandler)
+    r.Group(func(r chi.Router) {
+        r.Use(middleware.Timeout(time.Duration(config.Config.Timeout) * time.Second))
+
+        r.Post("/", RunCommandWithArgsHandler)
+
+        r.Get("/slow", func(w http.ResponseWriter, r *http.Request) {
+            rand.Seed(time.Now().Unix())
+
+            // Processing will take 1-5 seconds.
+            processTime := time.Duration(rand.Intn(4)+1) * time.Second
+
+            select {
+            case <-r.Context().Done():
+                return
+
+            case <-time.After(processTime):
+                // The above channel simulates some hard work.
+            }
+
+            w.Write([]byte(fmt.Sprintf("Processed in %v seconds\n", processTime)))
+        })
+    })
     return r
 }
 
-func RunCommand(data *CommandRequest, resp *CommandResponse) {
+func RunCommand(data *CommandRequest, resp *CommandResponse, done chan<- bool) {
     cmd := exec.Command(config.Config.Commands[data.Name], data.Args...)
     var stdout, stderr bytes.Buffer
     cmd.Stdout = &stdout
@@ -102,6 +127,7 @@ func RunCommand(data *CommandRequest, resp *CommandResponse) {
         resp.Msg = err.Error()
         resp.Rc = 1
     }
+    done <- true
     return
 }
 
@@ -130,7 +156,21 @@ func RunCommandWithArgsHandler(w http.ResponseWriter, r *http.Request) {
     resp.Cmd = data.Name
     resp.Rc = 0
 
-    RunCommand(data, resp)
+    done := make(chan bool, 1)
+    go RunCommand(data, resp, done)
+
+    select {
+        case <-r.Context().Done():
+            resp.Msg = "command timed out"
+            resp.Rc = 1
+            render.Status(r, http.StatusGatewayTimeout)
+            render.Render(w, r, resp)
+            return
+        case <-done:
+            render.Status(r, http.StatusOK)
+            render.Render(w, r, resp)
+            return
+    }
     
     render.Status(r, http.StatusOK)
     render.Render(w, r, resp)
