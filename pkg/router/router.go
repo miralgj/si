@@ -69,36 +69,12 @@ func NewRouter() *chi.Mux {
     r.Use(middleware.Recoverer)
     r.Use(render.SetContentType(render.ContentTypeJSON))
 
-    r.Get("/", ShowConfig)
-    r.Post("/", RunCommand)
+    r.Get("/", ShowConfigHandler)
+    r.Post("/", RunCommandWithArgsHandler)
     return r
 }
 
-func RunCommand(w http.ResponseWriter, r *http.Request) {
-    data := &CommandRequest{}
-    resp := &CommandResponse{}
-
-    // Decode the POST json data
-    if err := render.Bind(r, data); err != nil {
-        resp.Msg = err.Error()
-        resp.Rc = 1
-        render.Status(r, http.StatusBadRequest)
-        render.Render(w, r, resp)
-        return
-    }
-    
-    // Make sure requested command is defined
-    if _, ok := config.Config.Commands[data.Name]; !ok {
-        resp.Msg = "command not found - "+data.Name
-        resp.Rc = 127
-        render.Status(r, http.StatusBadRequest)
-        render.Render(w, r, resp)
-        return
-    }
-
-    resp.Cmd = data.Name
-    resp.Rc = 0
-
+func RunCommand(data *CommandRequest, resp *CommandResponse) {
     cmd := exec.Command(config.Config.Commands[data.Name], data.Args...)
     var stdout, stderr bytes.Buffer
     cmd.Stdout = &stdout
@@ -126,13 +102,43 @@ func RunCommand(w http.ResponseWriter, r *http.Request) {
         resp.Msg = err.Error()
         resp.Rc = 1
     }
+    return
+}
 
+func RunCommandWithArgsHandler(w http.ResponseWriter, r *http.Request) {
+    data := &CommandRequest{}
+    resp := &CommandResponse{}
+
+    // Decode the POST json data
+    if err := render.Bind(r, data); err != nil {
+        resp.Msg = err.Error()
+        resp.Rc = 1
+        render.Status(r, http.StatusBadRequest)
+        render.Render(w, r, resp)
+        return
+    }
+    
+    // Make sure requested command is defined
+    if _, ok := config.Config.Commands[data.Name]; !ok {
+        resp.Msg = "command not found - "+data.Name
+        resp.Rc = 127
+        render.Status(r, http.StatusBadRequest)
+        render.Render(w, r, resp)
+        return
+    }
+
+    resp.Cmd = data.Name
+    resp.Rc = 0
+
+    RunCommand(data, resp)
+    
     render.Status(r, http.StatusOK)
     render.Render(w, r, resp)
     return
 }
 
-func ShowConfig(w http.ResponseWriter, r *http.Request) {
+func ShowConfigHandler(w http.ResponseWriter, r *http.Request) {
+    render.Status(r, http.StatusOK)
     render.Render(w, r, NewShowConfigResponse())
     return
 }
