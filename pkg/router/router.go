@@ -6,6 +6,7 @@ import (
     "time"
     "bytes"
     "errors"
+    "strings"
     "os/exec"
     "net/http"
     "math/rand"
@@ -37,7 +38,9 @@ type CommandResponse struct {
     Rc int `json:"rc"`
     //Start
     Stderr string `json:"stderr"`
+    StderrLines []string `json:"stderr_lines"`
     Stdout string `json:"stdout"`
+    StdoutLines []string `json:"stdout_lines"`
 }
 
 func (c *CommandResponse) Render(w http.ResponseWriter, r *http.Request) error {
@@ -108,8 +111,10 @@ func RunCommand(data *CommandRequest, resp *CommandResponse, done chan<- bool) {
     // Run requested command
     err := cmd.Run()
 
-    resp.Stdout = string(stdout.Bytes())
     resp.Stderr = string(stderr.Bytes())
+    resp.Stdout = string(stdout.Bytes())
+    resp.StdoutLines = strings.Split(resp.Stdout, "\n")
+    resp.StderrLines = strings.Split(resp.Stderr, "\n")
 
     var (
         ee *exec.ExitError
