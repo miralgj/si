@@ -9,16 +9,16 @@ Is this a bad idea? Si!
 * `--command` 
   Command to expose (can be used multiple times). The command base name is used as the command name.
 
-* `--list-host` 
-  Specifies the host to listen on 
+* `--listen-host` 
+  Specifies the host to listen on\
   Default: `0.0.0.0`
 
 * `--port` 
-  Port to listen on 
+  Port to listen on\
   Default: `3000`
 
 * `--timeout` 
-  Timeout in seconds before command is cancelled 
+  Timeout in seconds before command is cancelled\
   Default: `90`
 
 ## Usage
