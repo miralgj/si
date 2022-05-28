@@ -9,6 +9,9 @@ type Options struct {
     Listen string `json:"listen-host"`
     Port string `json:"port"`
     Timeout int `json:"timeout"`
+    Tls bool `json:"tls"`
+    TlsCert string `json:"tls-cert"`
+    TlsKey string `json:"tls-key"`
 }
 
 var Config *Options
@@ -17,14 +20,12 @@ func GetFlags() []cli.Flag {
     f := []cli.Flag{
         &cli.StringSliceFlag{
             Name:   "command",
-            Aliases: []string{"cmd"},
             Usage:  "command to expose",
             EnvVars: []string{"COMMANDS"},
             Required: true,
         },
         &cli.StringFlag{
             Name:   "listen-host",
-            Aliases: []string{"l"},
             Usage:  "specifies the host to listen on",
             EnvVars: []string{"LISTEN_HOST"},
             Value: "0.0.0.0",
@@ -32,7 +33,6 @@ func GetFlags() []cli.Flag {
         },
         &cli.StringFlag{
             Name:   "port",
-            Aliases: []string{"p"},
             Usage:  "port to listen on",
             EnvVars: []string{"PORT"},
             Value: "3000",
@@ -40,11 +40,22 @@ func GetFlags() []cli.Flag {
         },
         &cli.IntFlag{
             Name:   "timeout",
-            Aliases: []string{"t"},
             Usage:  "timeout for commands",
             EnvVars: []string{"TIMEOUT"},
             Value: 90,
             Destination: &Config.Timeout,
+        },
+        &cli.StringFlag{
+            Name:   "tls-cert",
+            Usage:  "path to tls certificate chain file",
+            EnvVars: []string{"TLS_CERT"},
+            Destination: &Config.TlsCert,
+        },
+        &cli.StringFlag{
+            Name:   "tls-key",
+            Usage:  "path to tls key file",
+            EnvVars: []string{"TLS_KEY"},
+            Destination: &Config.TlsKey,
         },
     }
     return f
