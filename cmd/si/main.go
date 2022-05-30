@@ -13,10 +13,14 @@ import (
     "github.com/urfave/cli/v2"
 )
 
+// Compile with --ldflags="-w -X main.Version=$(VERSION)"
+// to set version number
+var Version string
+
 func main() {
     app := cli.NewApp()
     app.Name = "Si"
-    app.Version = "v0.1.0"
+    app.Version = Version
     app.Usage = "Expose commands as an API"
     app.Action = cliActionHandler
     app.Before = cliBeforeHandler
