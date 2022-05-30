@@ -82,22 +82,6 @@ func NewRouter() *chi.Mux {
 
         r.Post("/", RunCommandWithArgsHandler)
 
-        r.Get("/slow", func(w http.ResponseWriter, r *http.Request) {
-            rand.Seed(time.Now().Unix())
-
-            // Processing will take 1-5 seconds.
-            processTime := time.Duration(rand.Intn(4)+1) * time.Second
-
-            select {
-            case <-r.Context().Done():
-                return
-
-            case <-time.After(processTime):
-                // The above channel simulates some hard work.
-            }
-
-            w.Write([]byte(fmt.Sprintf("Processed in %v seconds\n", processTime)))
-        })
     })
     return r
 }
@@ -120,7 +104,7 @@ func RunCommand(data *CommandRequest, resp *CommandResponse, done chan<- bool) {
         ee *exec.ExitError
         pe *os.PathError
     )
-    
+
     if errors.As(err, &ee) {
         // Non-zero exit code
         resp.Msg = err.Error()
@@ -148,7 +132,7 @@ func RunCommandWithArgsHandler(w http.ResponseWriter, r *http.Request) {
         render.Render(w, r, resp)
         return
     }
-    
+
     // Make sure requested command is defined
     if _, ok := config.Config.Commands[data.Name]; !ok {
         resp.Msg = "command not found - "+data.Name
@@ -176,7 +160,7 @@ func RunCommandWithArgsHandler(w http.ResponseWriter, r *http.Request) {
             render.Render(w, r, resp)
             return
     }
-    
+
     render.Status(r, http.StatusOK)
     render.Render(w, r, resp)
     return
