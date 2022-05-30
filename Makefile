@@ -1,5 +1,6 @@
 BINDIR      := $(CURDIR)/bin
 BINNAME     ?= si
+VERSION		?= 0.1.0
 
 SHELL      = /usr/bin/env bash
 
@@ -71,11 +72,15 @@ clean:
 
 .PHONY: dist
 dist:
+	for f in $$(ls -1 bin/si-*-{arm64,armv7,amd64,mips64} 2>/dev/null) ; do \
+		echo "Creating $${f}-v$(VERSION).tar.gz" ; \
+		tar -czvf bin/$$(basename $${f})-v$(VERSION).tar.gz $${f} README.md LICENSE; \
+	done
 
 .PHONY: checksum
 checksum:
 	cd $(BINDIR) ; \
-	for f in $$(ls -1 si-*-{arm64,armv7,amd64,mips64} 2>/dev/null) ; do \
+	for f in $$(ls -1 si-*.tar.gz 2>/dev/null) ; do \
 		echo "Creating $${f}.sha256sum" ; \
 		shasum -a 256 "$${f}" > "$${f}.sha256sum" ; \
 	done
