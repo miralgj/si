@@ -2,14 +2,14 @@ package router
 
 import (
     "os"
-    "fmt"
+    //"fmt"
     "time"
     "bytes"
     "errors"
     "strings"
     "os/exec"
     "net/http"
-    "math/rand"
+    //"math/rand"
 
     "github.com/miralgj/si/pkg/config"
 
