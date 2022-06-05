@@ -9,6 +9,12 @@ Is this a bad idea? Si!
 * `--command` 
   Command to expose (can be used multiple times). The command base name is used as the command name.
 
+* `--basic-auth-user` 
+  Username for basic http authentication
+
+* `--basic-auth-pass` 
+  Password for basic http authentication
+
 * `--listen-host` 
   Specifies the host to listen on\
   Default: `0.0.0.0`
@@ -20,6 +26,12 @@ Is this a bad idea? Si!
 * `--timeout` 
   Timeout in seconds before command is cancelled\
   Default: `90`
+
+* `--tls-cert` 
+  Path to tls certificate chain file
+
+* `--tls-key` 
+  Path to tls key file
 
 ## Usage
 
