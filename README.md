@@ -6,31 +6,31 @@ Is this a bad idea? Si!
 
 ## Command-Line Options
 
-* `--command` 
+* `--command`\
   Command to expose (can be used multiple times). The command base name is used as the command name.
 
-* `--basic-auth-user` 
+* `--basic-auth-user`\
   Username for basic http authentication
 
-* `--basic-auth-pass` 
+* `--basic-auth-pass`\
   Password for basic http authentication
 
-* `--listen-host` 
+* `--listen-host`\
   Specifies the host to listen on\
   Default: `0.0.0.0`
 
-* `--port` 
+* `--port`\
   Port to listen on\
   Default: `3000`
 
-* `--timeout` 
+* `--timeout`\
   Timeout in seconds before command is cancelled\
   Default: `90`
 
-* `--tls-cert` 
+* `--tls-cert`\
   Path to tls certificate chain file
 
-* `--tls-key` 
+* `--tls-key`\
   Path to tls key file
 
 ## Usage
