@@ -69,8 +69,8 @@ build-mac-arm: export CGO_ENABLED=0
 build-mac-arm: export GO111MODULE=on
 build-mac-arm: export GOPROXY=$(MOD_PROXY_URL)
 build-mac-arm:
-	go build -v -o --ldflags="-w -X main.Version=$(VERSION)" \
-		bin/$(BINNAME)-darwin-arm64 cmd/si/main.go
+	go build -v --ldflags="-w -X main.Version=$(VERSION)" \
+		-o bin/$(BINNAME)-darwin-arm64 cmd/si/main.go
 
 .PHONY: clean
 clean:
