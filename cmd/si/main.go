@@ -40,6 +40,7 @@ func main() {
 func cliActionHandler(c *cli.Context) error {
     r := router.NewRouter()
     var err error
+    log.Println("Starting si server on "+conf.Listen+":"+conf.Port)
     if (conf.Tls) {
         err = http.ListenAndServeTLS(conf.Listen+":"+conf.Port, conf.TlsCert, conf.TlsKey, r)
     } else {
@@ -52,6 +53,11 @@ func cliActionHandler(c *cli.Context) error {
 }
 
 func cliBeforeHandler(c *cli.Context) error {
+    // Verify both basic-auth-user and basic-auth-pass were used together
+    if (c.IsSet("basic-auth-user") || c.IsSet("basic-auth-pass")) {
+        dieIfFlagsMissing(c, []string{"basic-auth-user", "basic-auth-pass"})
+        conf.BasicAuth = true
+    }
     // Verify both tls-cert and tls-key were used together
     if (c.IsSet("tls-cert") || c.IsSet("tls-key")) {
         dieIfFlagsMissing(c, []string{"tls-cert", "tls-key"})

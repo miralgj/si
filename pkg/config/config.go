@@ -5,6 +5,9 @@ import (
 )
 
 type Options struct {
+    BasicAuth bool `json:"basic-auth"`
+    BasicAuthUser string `json:"basic-auth-user"`
+    BasicAuthPass string `json:"-"`
     Commands map[string]string `json:"commands"`
     Listen string `json:"listen-host"`
     Port string `json:"port"`
@@ -23,6 +26,18 @@ func GetFlags() []cli.Flag {
             Usage:  "command to expose",
             EnvVars: []string{"COMMANDS"},
             Required: true,
+        },
+        &cli.StringFlag{
+            Name:   "basic-auth-user",
+            Usage:  "username for basic http authentication",
+            EnvVars: []string{"BASIC_AUTH_USER"},
+            Destination: &Config.BasicAuthUser,
+        },
+        &cli.StringFlag{
+            Name:   "basic-auth-pass",
+            Usage:  "password for basic http authentication",
+            EnvVars: []string{"BASIC_AUTH_PASS"},
+            Destination: &Config.BasicAuthPass,
         },
         &cli.StringFlag{
             Name:   "listen-host",

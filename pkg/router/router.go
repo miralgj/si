@@ -69,10 +69,19 @@ func NewShowConfigResponse() *ShowConfigResponse {
 func NewRouter() *chi.Mux {
     r := chi.NewRouter()
 
-    // Set up middlewares
+    // Set up basic middlewares
     r.Use(middleware.RealIP)
     r.Use(middleware.Logger)
     r.Use(middleware.Recoverer)
+
+    // Set up basic auth
+    if (config.Config.BasicAuth) {
+        creds := make(map[string]string)
+        creds[config.Config.BasicAuthUser] = config.Config.BasicAuthPass
+        r.Use(middleware.BasicAuth("si", creds))
+    }
+
+    // Required middleware for json output
     r.Use(render.SetContentType(render.ContentTypeJSON))
 
     r.Get("/", ShowConfigHandler)
