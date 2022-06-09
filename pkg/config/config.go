@@ -9,6 +9,8 @@ type Options struct {
     BasicAuthUser string `json:"basic-auth-user"`
     BasicAuthPass string `json:"-"`
     Commands map[string]string `json:"commands"`
+    JwtAuth bool `json:"jwt-auth"`
+    JwtKey string `json:"-"`
     Listen string `json:"listen-host"`
     Port string `json:"port"`
     Timeout int `json:"timeout"`
@@ -38,6 +40,20 @@ func GetFlags() []cli.Flag {
             Usage:  "password for basic http authentication",
             EnvVars: []string{"BASIC_AUTH_PASS"},
             Destination: &Config.BasicAuthPass,
+        },
+        &cli.BoolFlag{
+            Name:   "jwt-auth",
+            Usage:  "use jwt authentication",
+            EnvVars: []string{"JWT_AUTH"},
+            Value: false,
+            Destination: &Config.JwtAuth,
+        },
+        &cli.StringFlag{
+            Name:   "jwt-key",
+            Usage:  "secret key for jwt authentication",
+            EnvVars: []string{"JWT_KEY"},
+            DefaultText: "random",
+            Destination: &Config.JwtKey,
         },
         &cli.StringFlag{
             Name:   "listen-host",

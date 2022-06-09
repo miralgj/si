@@ -3,18 +3,21 @@ package router
 import (
     "os"
     //"fmt"
+    "log"
     "time"
     "bytes"
     "errors"
     "strings"
     "os/exec"
     "net/http"
+    "math/rand"
     //"math/rand"
 
     "github.com/miralgj/si/pkg/config"
 
     "github.com/go-chi/chi/v5"
     "github.com/go-chi/render"
+    "github.com/go-chi/jwtauth/v5"
     "github.com/go-chi/chi/v5/middleware"
 )
 
@@ -76,9 +79,28 @@ func NewRouter() *chi.Mux {
 
     // Set up basic auth
     if (config.Config.BasicAuth) {
+        log.Println("Basic authentication is enabled")
         creds := make(map[string]string)
         creds[config.Config.BasicAuthUser] = config.Config.BasicAuthPass
         r.Use(middleware.BasicAuth("si", creds))
+    }
+
+    // Set up JWT auth
+    if (config.Config.JwtAuth) {
+        var key []byte
+        if (config.Config.JwtKey != "") {
+            key = []byte(config.Config.JwtKey)
+            log.Println("Using "+string(key))
+        } else {
+            key = RandomString(32)
+            log.Println("Using "+string(key))
+        }
+        tokenAuth := jwtauth.New("HS256", key, nil)
+        _, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"authenticated": true})
+        log.Println("JWT authentication is enabled")
+        log.Println("Bearer token: "+tokenString)
+        r.Use(jwtauth.Verifier(tokenAuth))
+        r.Use(jwtauth.Authenticator)
     }
 
     // Required middleware for json output
@@ -179,4 +201,17 @@ func ShowConfigHandler(w http.ResponseWriter, r *http.Request) {
     render.Status(r, http.StatusOK)
     render.Render(w, r, NewShowConfigResponse())
     return
+}
+
+func RandomString(length int) []byte {
+    const charset = "abcdefghijklmnopqrstuvwxyz" +
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    var seededRand *rand.Rand = rand.New(
+        rand.NewSource(time.Now().UnixNano()))
+
+    s := make([]byte, length)
+    for i := range s {
+        s[i] = charset[seededRand.Intn(len(charset))]
+    }
+    return s
 }
