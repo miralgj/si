@@ -90,10 +90,8 @@ func NewRouter() *chi.Mux {
         var key []byte
         if (config.Config.JwtKey != "") {
             key = []byte(config.Config.JwtKey)
-            log.Println("Using "+string(key))
         } else {
             key = RandomString(32)
-            log.Println("Using "+string(key))
         }
         tokenAuth := jwtauth.New("HS256", key, nil)
         _, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"authenticated": true})
