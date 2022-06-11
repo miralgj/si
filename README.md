@@ -15,6 +15,12 @@ Is this a bad idea? Si!
 * `--basic-auth-pass`\
   Password for basic http authentication
 
+* `--jwt-auth`\
+  Use jwt authentication
+
+* `--jwt-key`\
+  Secret key for jwt authentication
+
 * `--listen-host`\
   Specifies the host to listen on\
   Default: `0.0.0.0`
