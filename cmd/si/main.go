@@ -53,6 +53,10 @@ func cliActionHandler(c *cli.Context) error {
 }
 
 func cliBeforeHandler(c *cli.Context) error {
+    // Verify basic and jwt auth weren't used together
+    if ((c.IsSet("basic-auth-user") || c.IsSet("basic-auth-pass")) && c.IsSet("jwt-auth")) {
+        die("Basic auth and JWT auth are mutually exclusive")
+    }
     // Verify both basic-auth-user and basic-auth-pass were used together
     if (c.IsSet("basic-auth-user") || c.IsSet("basic-auth-pass")) {
         dieIfFlagsMissing(c, []string{"basic-auth-user", "basic-auth-pass"})
