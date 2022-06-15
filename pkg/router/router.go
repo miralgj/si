@@ -85,17 +85,17 @@ func NewRouter() *chi.Mux {
         r.Use(middleware.BasicAuth("si", creds))
     }
 
-    // Set up JWT auth
-    if (config.Config.JwtAuth) {
+    // Set up token auth
+    if (config.Config.TokenAuth) {
         var key []byte
-        if (config.Config.JwtKey != "") {
-            key = []byte(config.Config.JwtKey)
+        if (config.Config.TokenKey != "") {
+            key = []byte(config.Config.TokenKey)
         } else {
             key = RandomString(32)
         }
         tokenAuth := jwtauth.New("HS256", key, nil)
         _, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"authenticated": true})
-        log.Println("JWT authentication is enabled")
+        log.Println("Token authentication is enabled")
         log.Println("Bearer token: "+tokenString)
         r.Use(jwtauth.Verifier(tokenAuth))
         r.Use(jwtauth.Authenticator)
@@ -105,7 +105,6 @@ func NewRouter() *chi.Mux {
     r.Use(render.SetContentType(render.ContentTypeJSON))
 
     r.Get("/", ShowConfigHandler)
-    //r.Post("/", RunCommandWithArgsHandler)
     r.Group(func(r chi.Router) {
         r.Use(middleware.Timeout(time.Duration(config.Config.Timeout) * time.Second))
 

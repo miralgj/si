@@ -9,8 +9,8 @@ type Options struct {
     BasicAuthUser string `json:"basic-auth-user"`
     BasicAuthPass string `json:"-"`
     Commands map[string]string `json:"commands"`
-    JwtAuth bool `json:"jwt-auth"`
-    JwtKey string `json:"-"`
+    TokenAuth bool `json:"token-auth"`
+    TokenKey string `json:"-"`
     Listen string `json:"listen-host"`
     Port string `json:"port"`
     Timeout int `json:"timeout"`
@@ -28,32 +28,6 @@ func GetFlags() []cli.Flag {
             Usage:  "command to expose",
             EnvVars: []string{"COMMANDS"},
             Required: true,
-        },
-        &cli.StringFlag{
-            Name:   "basic-auth-user",
-            Usage:  "username for basic http authentication",
-            EnvVars: []string{"BASIC_AUTH_USER"},
-            Destination: &Config.BasicAuthUser,
-        },
-        &cli.StringFlag{
-            Name:   "basic-auth-pass",
-            Usage:  "password for basic http authentication",
-            EnvVars: []string{"BASIC_AUTH_PASS"},
-            Destination: &Config.BasicAuthPass,
-        },
-        &cli.BoolFlag{
-            Name:   "jwt-auth",
-            Usage:  "use jwt authentication",
-            EnvVars: []string{"JWT_AUTH"},
-            Value: false,
-            Destination: &Config.JwtAuth,
-        },
-        &cli.StringFlag{
-            Name:   "jwt-key",
-            Usage:  "secret key for jwt authentication",
-            EnvVars: []string{"JWT_KEY"},
-            DefaultText: "random",
-            Destination: &Config.JwtKey,
         },
         &cli.StringFlag{
             Name:   "listen-host",
@@ -75,6 +49,32 @@ func GetFlags() []cli.Flag {
             EnvVars: []string{"TIMEOUT"},
             Value: 90,
             Destination: &Config.Timeout,
+        },
+        &cli.StringFlag{
+            Name:   "basic-auth-user",
+            Usage:  "username for basic http authentication",
+            EnvVars: []string{"BASIC_AUTH_USER"},
+            Destination: &Config.BasicAuthUser,
+        },
+        &cli.StringFlag{
+            Name:   "basic-auth-pass",
+            Usage:  "password for basic http authentication",
+            EnvVars: []string{"BASIC_AUTH_PASS"},
+            Destination: &Config.BasicAuthPass,
+        },
+        &cli.BoolFlag{
+            Name:   "token-auth",
+            Usage:  "use token authentication",
+            EnvVars: []string{"TOKEN_AUTH"},
+            Value: false,
+            Destination: &Config.TokenAuth,
+        },
+        &cli.StringFlag{
+            Name:   "token-key",
+            Usage:  "secret key for token authentication",
+            EnvVars: []string{"TOKEN_KEY"},
+            DefaultText: "random",
+            Destination: &Config.TokenKey,
         },
         &cli.StringFlag{
             Name:   "tls-cert",
