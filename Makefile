@@ -1,6 +1,6 @@
 BINDIR       := $(CURDIR)/bin
 BINNAME      ?= si
-VERSION      ?= 0.2.0
+VERSION      ?= 0.2.1
 
 SHELL         = /usr/bin/env bash
 
