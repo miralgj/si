@@ -53,6 +53,11 @@ func cliActionHandler(c *cli.Context) error {
 }
 
 func cliBeforeHandler(c *cli.Context) error {
+    // Enable files flag if files-dir is set
+    if (c.IsSet("files-dir")) {
+        dieIfFilesMissing([]string{c.String("files-dir")})
+        conf.Files = true
+    }
     // Verify basic and token auth weren't used together
     if ((c.IsSet("basic-auth-user") || c.IsSet("basic-auth-pass")) && c.IsSet("token-auth")) {
         die("Basic and token auth are mutually exclusive")

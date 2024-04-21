@@ -101,17 +101,29 @@ func NewRouter() *chi.Mux {
         r.Use(jwtauth.Authenticator)
     }
 
-    // Required middleware for json output
-    r.Use(render.SetContentType(render.ContentTypeJSON))
+    // Set up files route
+    if (config.Config.Files) {
+        r.Get("/files", http.RedirectHandler("/files/", 301).ServeHTTP)
+        r.Get("/files/*", FilesHandler)
+    }
 
-    r.Get("/", ShowConfigHandler)
     r.Group(func(r chi.Router) {
+        r.Use(render.SetContentType(render.ContentTypeJSON))
+        r.Get("/", ShowConfigHandler)
+    })
+
+    r.Group(func(r chi.Router) {
+        r.Use(render.SetContentType(render.ContentTypeJSON))
         r.Use(middleware.Timeout(time.Duration(config.Config.Timeout) * time.Second))
-
         r.Post("/", RunCommandWithArgsHandler)
-
     })
     return r
+}
+
+func FilesHandler(w http.ResponseWriter, r *http.Request) {
+    fs := http.StripPrefix("/files", http.FileServer(http.Dir(config.Config.FilesDir)))
+    fs.ServeHTTP(w, r)
+    return
 }
 
 func RunCommand(data *CommandRequest, resp *CommandResponse, done chan<- bool) {

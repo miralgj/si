@@ -9,6 +9,8 @@ type Options struct {
     BasicAuthUser string `json:"basic-auth-user"`
     BasicAuthPass string `json:"-"`
     Commands map[string]string `json:"commands"`
+    Files bool `json:"files"`
+    FilesDir string `json:"files-dir"`
     TokenAuth bool `json:"token-auth"`
     TokenKey string `json:"-"`
     Listen string `json:"listen-host"`
@@ -28,6 +30,12 @@ func GetFlags() []cli.Flag {
             Usage:  "command to expose",
             EnvVars: []string{"COMMANDS"},
             Required: true,
+        },
+        &cli.StringFlag{
+            Name:   "files-dir",
+            Usage:  "specifies directory to serve at /files",
+            EnvVars: []string{"FILES_DIR"},
+            Destination: &Config.FilesDir,
         },
         &cli.StringFlag{
             Name:   "listen-host",
