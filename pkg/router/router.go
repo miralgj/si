@@ -2,7 +2,6 @@ package router
 
 import (
     "os"
-    //"fmt"
     "log"
     "time"
     "bytes"
@@ -11,7 +10,6 @@ import (
     "os/exec"
     "net/http"
     "math/rand"
-    //"math/rand"
 
     "github.com/miralgj/si/pkg/config"
 
@@ -35,11 +33,8 @@ func (c *CommandRequest) Bind(r *http.Request) error {
 
 type CommandResponse struct {
     Cmd string `json:"cmd"`
-    //Delta
-    //End
     Msg string `json:"msg"`
     Rc int `json:"rc"`
-    //Start
     Stderr string `json:"stderr"`
     StderrLines []string `json:"stderr_lines"`
     Stdout string `json:"stdout"`

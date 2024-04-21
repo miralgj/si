@@ -101,7 +101,7 @@ func GetFlags() []cli.Flag {
 }
 
 func initConfig() {
-    // Initialoize config with defaults
+    // Initialize config with defaults
     Config = &Options{
         Commands: make(map[string]string),
         Listen: "0.0.0.0",
