@@ -85,7 +85,7 @@ curl -s -X POST -d '{"name":"ps", "args": ["-l"]}' http://10.0.0.1:3000/
 
 ### Serving Output Files
 
-If an exposed command generates files, you can expose a directory with the `--files-dir` option to make them available for download.
+If an exposed command generates files, you can expose a directory with the `--files-dir` option to make them available for download at http://${IP}:${PORT}/files/.
 
 ```
 si --command /usr/bin/customscript --files-dir /tmp/outputdir
